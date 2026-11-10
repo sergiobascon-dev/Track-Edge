@@ -45,12 +45,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
   timer=Timer.scheduledTimer(withTimeInterval:0.6,repeats:true) { [weak self] _ in
    guard let self else { return }
    if AXIsProcessTrusted() && self.eventTap == nil { self.installTap(); if EBDeviceCount()==0 { self.startHardware() } }
-   if self.engine.capturesPointer && ProcessInfo.processInfo.systemUptime-self.lastFrameAt > 0.5 { self.resetGesture() }
+   if self.engine.isTracking && ProcessInfo.processInfo.systemUptime-self.lastFrameAt > 0.5 { self.resetGesture() }
    if self.popover.isShown { self.refresh() }
   }
   if !defaults.bool(forKey:"hasOpened") {
    defaults.set(true,forKey:"hasOpened"); showSetup()
-  } else { DispatchQueue.main.async { self.togglePopover() } }
+  }
  }
  func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool { if !popover.isShown { togglePopover() }; return true }
  func resetGesture() { engine.reset(); cursor.stop() }
@@ -66,7 +66,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
   engine.options.modifier=defaults.integer(forKey:"modifier")
   engine.options.edgeWidth=defaults.double(forKey:"edgeWidth")
   engine.options.sensitivity=defaults.double(forKey:"sensitivity")
-  haptics=defaults.bool(forKey:"haptics"); hapticStrength=defaults.integer(forKey:"hapticStrength"); appearance=defaults.integer(forKey:"appearance")
+  engine.options.normalize()
+  haptics=defaults.bool(forKey:"haptics"); hapticStrength=min(max(defaults.integer(forKey:"hapticStrength"),0),2); appearance=min(max(defaults.integer(forKey:"appearance"),0),2)
   applyAppearance()
  }
  func applyAppearance() { NSApp.appearance=appearance == 0 ? nil : NSAppearance(named:appearance == 1 ? .aqua : .darkAqua) }
@@ -84,6 +85,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
    guard let context else { return Unmanaged.passUnretained(event) }
    let owner=Unmanaged<AppDelegate>.fromOpaque(context).takeUnretainedValue()
    if type == .tapDisabledByTimeout || type == .tapDisabledByUserInput {
+    owner.resetGesture()
     if let tap=owner.eventTap { CGEvent.tapEnable(tap:tap,enable:true) }
     return Unmanaged.passUnretained(event)
    }

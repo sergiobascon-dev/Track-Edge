@@ -75,4 +75,28 @@ movement.location=CGPoint(x:800,y:900)
 fallback.constrain(movement)
 expect(movement.location == anchor,"HID enforcement works when background decoupling fails")
 fallback.stop()
+// Corrupt persisted settings must not reach a trapping Double-to-Int conversion.
+for sensitivity in [Double.infinity, -Double.infinity, Double.nan, Double.greatestFiniteMagnitude] {
+ expect(!scenario({ $0.options.sensitivity=sensitivity },right).0.isEmpty,"invalid sensitivity is normalized")
+}
+for width in [Double.infinity, -Double.infinity, Double.nan] {
+ expect(!scenario({ $0.options.edgeWidth=width },right).0.isEmpty,"non-finite edge width uses default")
+}
+let idleBetweenMute=[mute[0],mute[1],(0,0.0,0.0,1.15,false,false,false),mute[2],mute[3]]
+expect(scenario(idleBetweenMute).0 == [.mute],"idle frames between taps preserve double tap")
+let interruptedMute=[mute[0],mute[1],(1,0.5,0.5,1.12,false,false,false),(0,0.0,0.0,1.15,false,false,false),mute[2],mute[3]]
+expect(scenario(interruptedMute).0.isEmpty,"interior touch breaks double tap")
+let reversed=[mute[0],mute[1],(1,0.98,0.98,0.5,false,false,false),(0,0.0,0.0,0.6,false,false,false)]
+expect(scenario(reversed).0.isEmpty,"backwards timestamps cannot trigger mute")
+let invalidTime=[right[0],(1,0.97,0.4,Double.nan,false,false,false)]
+expect(!scenario(invalidTime).1.capturesPointer,"non-finite time releases pointer")
+expect(scenario(invalidTime).0.isEmpty,"non-finite time emits no actions")
+let unfrozen=scenario({ $0.options.freezeCursor=false },right).1
+expect(unfrozen.isTracking,"watchdog tracks gestures with cursor freeze off")
+unfrozen.reset()
+expect(!unfrozen.isTracking,"watchdog reset clears stale gesture")
+let blockedEngine=scenario(interior).1
+expect(blockedEngine.isTracking,"watchdog tracks rejected contacts")
+blockedEngine.reset()
+expect(!blockedEngine.isTracking,"watchdog reset recovers after missing lift")
 print("PASS: \(checks) gesture and cursor checks")

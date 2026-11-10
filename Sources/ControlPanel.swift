@@ -147,9 +147,10 @@ final class ControlPanel:NSView {
   let icon=NSImageView(); icon.image=NSImage(contentsOf:Bundle.main.url(forResource:"AppIcon",withExtension:"icns") ?? URL(fileURLWithPath:"")); place(icon,17,14,18,18)
   text(title,47,16,170,14,.semibold)
   if ready {
-   let enabled=owner.engine.options.enabled, trusted=AXIsProcessTrusted()
-   let dot=NSView(); dot.wantsLayer=true; dot.layer?.backgroundColor=(trusted && enabled ? NSColor.systemGreen : .systemOrange).cgColor; dot.layer?.cornerRadius=3; place(dot,260,21,6,6)
-   statusLabel=text(trusted ? (enabled ? "Ready" : "Paused") : "Access",272,17,43,11)
+   let trusted=AXIsProcessTrusted()
+   let dot=NSView(); dot.wantsLayer=true; dot.layer?.backgroundColor=NSColor.systemOrange.cgColor; dot.layer?.cornerRadius=3; place(dot,260,21,6,6)
+   statusLabel=text(trusted ? (owner.engine.options.enabled ? "Menu" : "Paused") : "Access",272,17,43,11)
+   statusLabel?.toolTip="Gestures are suspended while this menu is open. Close it to use the trackpad edges."
   }
  }
  func rebuild() {
@@ -218,5 +219,5 @@ final class ControlPanel:NSView {
   let setup=NSMenuItem(title:"Setup & Diagnostics…",action:#selector(setup),keyEquivalent:""); setup.target=self; menu.addItem(setup)
   menu.popUp(positioning:nil,at:NSPoint(x:254,y:499),in:self)
  }
- func refresh() { statusLabel?.stringValue=AXIsProcessTrusted() ? (owner.engine.options.enabled ? "Ready" : "Paused") : "Access"; card?.swapped=owner.engine.options.swapSides; card?.needsDisplay=true }
+ func refresh() { statusLabel?.stringValue=AXIsProcessTrusted() ? (owner.engine.options.enabled ? "Menu" : "Paused") : "Access"; card?.swapped=owner.engine.options.swapSides; card?.needsDisplay=true }
 }

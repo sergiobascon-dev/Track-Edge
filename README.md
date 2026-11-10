@@ -58,7 +58,7 @@ Tras recompilar o reemplazar una app firmada localmente, macOS puede pedir que s
 ./TrackEdge.app/Contents/MacOS/TrackEdge --self-check
 ```
 
-Hay **38 comprobaciones automáticas** del reconocimiento de gestos y del bloqueo/restauración de eventos del cursor. Volumen, brillo, hápticos y cursor fijo se comprobaron además físicamente durante el desarrollo. La reproducción multimedia, cada nivel háptico y el inicio automático requieren comprobarse en cada entorno.
+Hay **54 comprobaciones automáticas** del reconocimiento de gestos y del bloqueo/restauración de eventos del cursor. Volumen, brillo, hápticos y cursor fijo se comprobaron además físicamente durante el desarrollo. La reproducción multimedia, cada nivel háptico y el inicio automático requieren comprobarse en cada entorno.
 
 Se pueden renderizar los paneles de la app sin iniciar el lector de gestos:
 
@@ -66,7 +66,7 @@ Se pueden renderizar los paneles de la app sin iniciar el lector de gestos:
 ./TrackEdge.app/Contents/MacOS/TrackEdge --render-panels Preview
 ```
 
-El detalle de la comprobación inicial está en [docs/VALIDATION.md](docs/VALIDATION.md).
+El detalle de la comprobación inicial está en [docs/VALIDATION.md](docs/VALIDATION.md). Las correcciones y pruebas de esta revisión están en [docs/AUDIT-2026-11-10.md](docs/AUDIT-2026-11-10.md).
 
 ## Estructura
 
